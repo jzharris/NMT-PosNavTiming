@@ -190,6 +190,30 @@ for i=1:N
 end
 
 %==========================================================================
+%% ECI Mechanization
+%==========================================================================
+r_i__i_b_INS = zeros(3,N);
+v_i__i_b_INS = zeros(3,N);
+C_i__b_INS = zeros(3,3,N);
+
+% Initialize the INS mechanization (Use ground truth)
+C_i__b_INS(:,:,1) = C_i__b(:,:,1);      % No errors in the initialization
+v_i__i_b_INS(:,1) = v_i__i_n(:,1);      % Remember: the origin of b-frame = origin of n-frame
+r_i__i_b_INS(:,1) = r_i__i_b(:,1);
+
+disp(C_i__b_INS(:,:,1));
+disp(dcm2k(C_i__b_INS));
+
+for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), f, w)
+    [r_i__i_b_INS(:,i)  , v_i__i_b_INS(:,i)  , C_i__b_INS(:,:,i)] = ECI_mech(constants, ...
+     r_i__i_b_INS(:,i-1), v_i__i_b_INS(:,i-1), C_i__b_INS(:,:,i-1), ...
+     w_b__i_b(:,i), f_b__i_b(:,i)); % Error free IMU
+end
+
+% Plot the ECI PVA Ground truth, INS derived PVA, & Error betw the two
+plot_PVA(constants, r_i__i_n, v_i__i_n, C_i__b, r_i__i_b_INS, v_i__i_b_INS, C_i__b_INS, 'ECEF')
+
+%==========================================================================
 %% ECEF Mechanization
 %==========================================================================
 r_e__e_b_INS = zeros(3,N);
