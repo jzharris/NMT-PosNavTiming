@@ -1,7 +1,7 @@
 function [gamma_x__i_b] = gamma__i_b(constants, r_x__i_b)
 %%  
 % This function implements the calculation of gravitational attraction
-%   gamma_?_i_b depending on the r-vector passed to it
+%   gamma_?__i_b depending on the r-vector passed to it
 %  Reference: page 48 in Groves
 %
 
