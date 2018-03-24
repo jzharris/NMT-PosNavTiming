@@ -25,11 +25,7 @@ Ohm_b__i_b = vec2ss(w_b__i_b_tilde);
 
 A_out = A_in + A_in * Ohm_b__i_b * dt;
 
-% fprintf('---\n');
-% disp(dcm2k(A_out));
-% fprintf('vs:\n');
 q_i__b = dcm2quat(A_out);
-% disp(dcm2k(quat2dcm(q_i__b / norm(q_i__b))));
 
 diff1 = norm(A_out - A_in);
 diff2 = norm(quat2dcm(q_i__b / norm(q_i__b)) - A_in);
@@ -38,17 +34,6 @@ diff = diff2 - diff1;
 if diff < 1
     A_out = quat2dcm(q_i__b / norm(q_i__b));
 end
-
-% Z = [-0.2885 0.7438 0.6029; 0.7438 -0.2224 0.6304; 0.6030 0.6303 -0.4891];
-% if norm(eye(3) - quat2dcm(q_i__b / norm(q_i__b))) > 0.001
-% % if norm(quat2dcm(q_i__b / norm(q_i__b))) ~= 1% || norm(A_out - Z) < 0.001
-%     A_out = quat2dcm(q_i__b / norm(q_i__b))
-% else
-%     fprintf('special case...using ');
-%     A_out
-%     
-% end
-% disp(dcm2k(A_out))
 
 %--------------------------------------------------------------------------
 % STEP 2.) Specific Force Update
