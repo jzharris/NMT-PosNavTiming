@@ -29,9 +29,7 @@ Ohm_e__i_e = [0 -1  0;
 A_out = (A_in*(eye(3) + (Ohm_b__i_b * dt))) - (Ohm_e__i_e * A_in * dt);
 
 q_e__b = dcm2quat(A_out);
-q_e__b = q_e__b / norm(q_e__b);
-
-A_out = quat2dcm(q_e__b);
+A_out = quat2dcm(q_e__b / norm(q_e__b));
 
 %--------------------------------------------------------------------------
 % STEP 2.) Specific Force Update
