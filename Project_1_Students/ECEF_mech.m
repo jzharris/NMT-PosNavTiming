@@ -33,11 +33,11 @@ A_out = (A_in*(eye(3) + (Ohm_b__i_b * dt))) - (Ohm_e__i_e * A_in * dt);
 
 q_e__b = dcm2quat(A_out);
 
+% normalize if this rotation is closer to A_in than original
 diff1 = norm(A_out - A_in);
 diff2 = norm(quat2dcm(q_e__b / norm(q_e__b)) - A_in);
-diff = diff2 - diff1;
 
-if diff < 1
+if diff2 - diff1 < 1
     A_out = quat2dcm(q_e__b / norm(q_e__b));
 end
 

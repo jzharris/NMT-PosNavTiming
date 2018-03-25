@@ -1,6 +1,6 @@
 function [P_out, V_out, A_out] = ECI_mech(constants,P_in, V_in, A_in, w_b__i_b_tilde, f_b__i_b_tilde)
 % FUNCTION DESCRIPTION:
-%   Implements the low-fidelity ECEF Mechanization
+%   Implements the low-fidelity ECI Mechanization
 %
 % INPUTS:
 %   constants = structure containing constants
@@ -17,7 +17,7 @@ function [P_out, V_out, A_out] = ECI_mech(constants,P_in, V_in, A_in, w_b__i_b_t
 
 dt = constants.dt;      % Time step
 
-% ECEF Mechanization: One iteration of the mechanization
+% ECI Mechanization: One iteration of the mechanization
 
 %--------------------------------------------------------------------------
 % STEP 1.) Attitude Update
@@ -27,11 +27,11 @@ A_out = A_in + A_in * Ohm_b__i_b * dt;
 
 q_i__b = dcm2quat(A_out);
 
+% normalize if this rotation is closer to A_in than original
 diff1 = norm(A_out - A_in);
 diff2 = norm(quat2dcm(q_i__b / norm(q_i__b)) - A_in);
-diff = diff2 - diff1;
 
-if diff < 1
+if diff2 - diff1 < 1
     A_out = quat2dcm(q_i__b / norm(q_i__b));
 end
 

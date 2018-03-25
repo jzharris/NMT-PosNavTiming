@@ -208,7 +208,7 @@ for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-)
 end
 
 % Plot the ECI PVA Ground truth, INS derived PVA, & Error betw the two
-% plot_PVA(constants, r_i__i_n, v_i__i_n, C_i__b, r_i__i_b_INS, v_i__i_b_INS, C_i__b_INS, 'ECI')
+plot_PVA(constants, r_i__i_n, v_i__i_n, C_i__b, r_i__i_b_INS, v_i__i_b_INS, C_i__b_INS, 'ECI')
 
 %==========================================================================
 %% ECEF Mechanization
@@ -234,53 +234,53 @@ plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e_
 %==========================================================================
 %% Plot the motion profile relative to the ships starting position
 %--------------------------------------------------------------------------
-start_pos = llh2xyz(constants, L_t(1), lambda_t(1), 0);     % ECEF starting position of ship's radar (above surface of sea)
-n_points = 100;                 % Number of points to plot
-inc = floor(N/n_points);        % Increment
-pos = zeros(3,n_points);        % Initialize
-
-                   
-for i=1:n_points                % Compute the ships's position wrt the ship's initial position
-    j = 1 + (i-1) * inc;
-    pos(:,i) = C_e__n_ship_start' * (r_e__e_t(:,j) - start_pos);
-end
-% Plot the motion of the ship
-
-figure,
-stem3(pos(1,:), -pos(2,:), -pos(3,:),'g')  % Plot in terms of North, West, and Up
-title('Motion of the Radar (on the ship) wrt the Ship''s Starting Position')
-xlabel('North (m)')
-ylabel('West (m)')
-zlabel('Up (m)')
-view(-76, 46)
-text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1]) 
-
-for i=1:n_points                % Compute the ships's position wrt the ship's initial position
-    j = 1 + (i-1) * inc;
-    pos(:,i) = C_e__n_ship_start' * (r_e__e_b(:,j) - start_pos);
-end
-% Plot the motion of the ship
-
-figure,
-stem3(pos(1,:), -pos(2,:), -pos(3,:),'b')  % Plot in terms of North, West, and Up
-title('Motion of the Aircraft wrt the Ship''s Starting Position')
-xlabel('North (m)')
-ylabel('West (m)')
-zlabel('Up (m)')
-view(-76, 46)
-text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1])
-
-for i=1:n_points                % Compute the ships's position wrt the ship's initial position
-    j = 1 + (i-1) * inc;
-    pos(:,i) = C_e__n_ship_start' * (r_e__e_b_INS(:,j) - start_pos);
-end
-% Plot the motion of the ship
-
-figure,
-stem3(pos(1,:), -pos(2,:), -pos(3,:),'k')  % Plot in terms of North, West, and Up
-title('Motion of the Aircraft wrt the Ship''s Starting Position')
-xlabel('North (m)')
-ylabel('West (m)')
-zlabel('Up (m)')
+% start_pos = llh2xyz(constants, L_t(1), lambda_t(1), 0);     % ECEF starting position of ship's radar (above surface of sea)
+% n_points = 100;                 % Number of points to plot
+% inc = floor(N/n_points);        % Increment
+% pos = zeros(3,n_points);        % Initialize
+% 
+%                    
+% for i=1:n_points                % Compute the ships's position wrt the ship's initial position
+%     j = 1 + (i-1) * inc;
+%     pos(:,i) = C_e__n_ship_start' * (r_e__e_t(:,j) - start_pos);
+% end
+% % Plot the motion of the ship
+% 
+% figure,
+% stem3(pos(1,:), -pos(2,:), -pos(3,:),'g')  % Plot in terms of North, West, and Up
+% title('Motion of the Radar (on the ship) wrt the Ship''s Starting Position')
+% xlabel('North (m)')
+% ylabel('West (m)')
+% zlabel('Up (m)')
 % view(-76, 46)
-text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1])
+% text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1]) 
+% 
+% for i=1:n_points                % Compute the ships's position wrt the ship's initial position
+%     j = 1 + (i-1) * inc;
+%     pos(:,i) = C_e__n_ship_start' * (r_e__e_b(:,j) - start_pos);
+% end
+% % Plot the motion of the ship
+% 
+% figure,
+% stem3(pos(1,:), -pos(2,:), -pos(3,:),'b')  % Plot in terms of North, West, and Up
+% title('Motion of the Aircraft wrt the Ship''s Starting Position')
+% xlabel('North (m)')
+% ylabel('West (m)')
+% zlabel('Up (m)')
+% view(-76, 46)
+% text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1])
+% 
+% for i=1:n_points                % Compute the ships's position wrt the ship's initial position
+%     j = 1 + (i-1) * inc;
+%     pos(:,i) = C_e__n_ship_start' * (r_e__e_b_INS(:,j) - start_pos);
+% end
+% % Plot the motion of the ship
+% 
+% figure,
+% stem3(pos(1,:), -pos(2,:), -pos(3,:),'k')  % Plot in terms of North, West, and Up
+% title('Motion of the Aircraft wrt the Ship''s Starting Position')
+% xlabel('North (m)')
+% ylabel('West (m)')
+% zlabel('Up (m)')
+% % view(-76, 46)
+% text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1])
