@@ -257,13 +257,8 @@ for i=2:N  % Call the mechanization at each iteration: PVA(+) = Nav_mech(PVA(-),
      w_b__i_b(:,i), f_b__i_b(:,i)); % Error free IMU
 end
 
-for i=1:N % Refit r_n__n_b from LLH to XYZ
-    r_n__e_b_INS(:,i) = llh2xyz(constants, r_n__e_b_INS(1,i), r_n__e_b_INS(2,i), r_n__e_b_INS(3,i));
-end
-
 % Plot the Nav PVA Ground truth, INS derived PVA, & Error betw the two
 plot_PVA(constants, r_e__e_b, v_n__e_b, C_n__b, r_n__e_b_INS, v_n__e_b_INS, C_n__b_INS, 'NAV')
-% plot_PVA(constants, [L_b; lambda_b; h_b], v_e__e_n, C_n__b, r_n__e_b_INS, v_n__e_b_INS, C_n__b_INS, 'NAV')
 
 %==========================================================================
 %% Plot the motion profile relative to the ships starting position
