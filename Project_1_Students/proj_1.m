@@ -192,23 +192,23 @@ end
 %==========================================================================
 %% ECI Mechanization
 %==========================================================================
-% r_i__i_b_INS = zeros(3,N);
-% v_i__i_b_INS = zeros(3,N);
-% C_i__b_INS = zeros(3,3,N);
-% 
-% % Initialize the INS mechanization (Use ground truth)
-% C_i__b_INS(:,:,1) = C_i__b(:,:,1);      % No errors in the initialization
-% v_i__i_b_INS(:,1) = v_i__i_n(:,1);      % Remember: the origin of b-frame = origin of n-frame
-% r_i__i_b_INS(:,1) = r_i__i_n(:,1);
-% 
-% for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECI_mech(PVA(-), w, f)
-%     [r_i__i_b_INS(:,i)  , v_i__i_b_INS(:,i)  , C_i__b_INS(:,:,i)] = ECI_mech(constants, ...
-%      r_i__i_b_INS(:,i-1), v_i__i_b_INS(:,i-1), C_i__b_INS(:,:,i-1), ...
-%      w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
-% end
-% 
-% % Plot the ECI PVA Ground truth, INS derived PVA, & Error betw the two
-% plot_PVA(constants, r_i__i_n, v_i__i_n, C_i__b, r_i__i_b_INS, v_i__i_b_INS, C_i__b_INS, 'ECI')
+r_i__i_b_INS = zeros(3,N);
+v_i__i_b_INS = zeros(3,N);
+C_i__b_INS = zeros(3,3,N);
+
+% Initialize the INS mechanization (Use ground truth)
+C_i__b_INS(:,:,1) = C_i__b(:,:,1);      % No errors in the initialization
+v_i__i_b_INS(:,1) = v_i__i_n(:,1);      % Remember: the origin of b-frame = origin of n-frame
+r_i__i_b_INS(:,1) = r_i__i_n(:,1);
+
+for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECI_mech(PVA(-), w, f)
+    [r_i__i_b_INS(:,i)  , v_i__i_b_INS(:,i)  , C_i__b_INS(:,:,i)] = ECI_mech(constants, ...
+     r_i__i_b_INS(:,i-1), v_i__i_b_INS(:,i-1), C_i__b_INS(:,:,i-1), ...
+     w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
+end
+
+% Plot the ECI PVA Ground truth, INS derived PVA, & Error betw the two
+plot_PVA(constants, r_i__i_n, v_i__i_n, C_i__b, r_i__i_b_INS, v_i__i_b_INS, C_i__b_INS, 'ECI')
 
 %==========================================================================
 %% ECEF Mechanization
@@ -234,31 +234,31 @@ plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e_
 %==========================================================================
 %% Nav Mechanization
 %==========================================================================
-% r_n__e_b_INS = zeros(3,N);
-% v_n__e_b_INS = zeros(3,N);
-% C_n__b_INS = zeros(3,3,N);
-% 
-% r_n__e_b = zeros(3,N);
-% v_n__e_b = zeros(3,N);
-% 
-% for i=1:N
-%     r_n__e_b(:,i) = C_e__n(:,:,i)' * r_e__e_b(:,i);
-%     v_n__e_b(:,i) = C_e__n(:,:,i)' * v_e__e_n(:,i);
-% end
-% 
-% % Initialize the INS mechanization (Use ground truth)
-% C_n__b_INS(:,:,1) = C_n__b(:,:,1);      % No errors in the initialization
-% v_n__e_b_INS(:,1) = v_n__e_b(:,1);      % Remember: the origin of b-frame = origin of n-frame
-% r_n__e_b_INS(:,1) = r_e__e_b(:,1);
-% 
-% for i=2:N  % Call the mechanization at each iteration: PVA(+) = Nav_mech(PVA(-), w, f)
-%     [r_n__e_b_INS(:,i)  , v_n__e_b_INS(:,i)  , C_n__b_INS(:,:,i)] = Nav_mech(constants, ...
-%      r_n__e_b_INS(:,i-1), v_n__e_b_INS(:,i-1), C_n__b_INS(:,:,i-1), ...
-%      w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
-% end
-% 
-% % Plot the Nav PVA Ground truth, INS derived PVA, & Error betw the two
-% plot_PVA(constants, r_e__e_b, v_n__e_b, C_n__b, r_n__e_b_INS, v_n__e_b_INS, C_n__b_INS, 'NAV')
+r_n__e_b_INS = zeros(3,N);
+v_n__e_b_INS = zeros(3,N);
+C_n__b_INS = zeros(3,3,N);
+
+r_n__e_b = zeros(3,N);
+v_n__e_b = zeros(3,N);
+
+for i=1:N
+    r_n__e_b(:,i) = C_e__n(:,:,i)' * r_e__e_b(:,i);
+    v_n__e_b(:,i) = C_e__n(:,:,i)' * v_e__e_n(:,i);
+end
+
+% Initialize the INS mechanization (Use ground truth)
+C_n__b_INS(:,:,1) = C_n__b(:,:,1);      % No errors in the initialization
+v_n__e_b_INS(:,1) = v_n__e_b(:,1);      % Remember: the origin of b-frame = origin of n-frame
+r_n__e_b_INS(:,1) = r_e__e_b(:,1);
+
+for i=2:N  % Call the mechanization at each iteration: PVA(+) = Nav_mech(PVA(-), w, f)
+    [r_n__e_b_INS(:,i)  , v_n__e_b_INS(:,i)  , C_n__b_INS(:,:,i)] = Nav_mech(constants, ...
+     r_n__e_b_INS(:,i-1), v_n__e_b_INS(:,i-1), C_n__b_INS(:,:,i-1), ...
+     w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
+end
+
+% Plot the Nav PVA Ground truth, INS derived PVA, & Error betw the two
+plot_PVA(constants, r_e__e_b, v_n__e_b, C_n__b, r_n__e_b_INS, v_n__e_b_INS, C_n__b_INS, 'NAV')
 
 %==========================================================================
 %% Plot the motion profile relative to the ships starting position

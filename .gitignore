@@ -1,2 +1,5 @@
 # ignore homework folder
 Hw/
+
+# ignore export folders
+Exports/
