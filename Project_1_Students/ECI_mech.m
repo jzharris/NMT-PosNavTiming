@@ -1,4 +1,4 @@
-function [P_out, V_out, A_out] = ECI_mech(constants,P_in, V_in, A_in, w_b__i_b_tilde, f_b__i_b_tilde)
+function [P_out, V_out, A_out] = ECI_mech(constants, P_in, V_in, A_in, w_b__i_b_tilde, f_b__i_b_tilde)
 % FUNCTION DESCRIPTION:
 %   Implements the low-fidelity ECI Mechanization
 %
