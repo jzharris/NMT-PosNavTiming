@@ -8,7 +8,7 @@
 constants.Fs  = 100;                % Sample frequency (Hz)
 constants.dt  = 1/constants.Fs;     % Sample interval (sec)
 constants.t_start = 0;              % Simulation start time (sec)
-constants.t_end = 240;              % Simulation end time (sec)
+constants.t_end = 180;              % Simulation end time (sec)
 %------------------------------------------------------------------------------
 % Earth model parameters
 %------------------------------------------------------------------------------
