@@ -12,7 +12,7 @@ clear all   % Remove all items from workspace - release system memory
 close all   % Close all open figures (i.e. plots)
 clc         % Clear the command window
 
-load_constants;                     % Load a file of constants
+load_constants1;                     % Load a file of constants
 
 Fs = constants.Fs;                  % Sample frequency (Hz)
 dt = constants.dt;                  % Sample interval (sec)

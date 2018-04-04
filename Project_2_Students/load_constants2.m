@@ -8,7 +8,7 @@
 constants.Fs  = 100;                % Sample frequency (Hz)
 constants.dt  = 1/constants.Fs;     % Sample interval (sec)
 constants.t_start = 0;              % Simulation start time (sec)
-constants.t_end = 180;              % Simulation end time (sec)
+constants.t_end = 60;              % Simulation end time (sec)
 %------------------------------------------------------------------------------
 % Earth model parameters
 %------------------------------------------------------------------------------
@@ -26,13 +26,14 @@ constants.f = 1 / 298.257223563;    % Flattening from page 38 of text
 % Gyro specific terms
 
 % Bias terms
-constants.gyro.b_g_FB = 0;      % Bias - Fixed Bias term (rad/s)
-constants.gyro.b_g_BS = degtorad(1)/(1 / 3600);  % Bias - Bias Stability Bias term 1-sigma (rad/s)
-constants.gyro.b_g_BI_sigma = degtorad(0.1)/(1 / 3600);  % Bias - Bias Instability Bias term 1-sigma (rad/s)
+constants.gyro.b_g_FB = zeros(3, 1);      % Bias - Fixed Bias term (rad/s)
+constants.gyro.b_g_BS_sigma = degtorad(1)/3600;  % Bias - Bias Stability Bias term 1-sigma (rad/s)
+constants.gyro.b_g_BI_sigma = degtorad(0.1)/3600;  % Bias - Bias Instability Bias term 1-sigma (rad/s)
 constants.gyro.BI.correlation_time = 3600; % Correlation time for the bias instability (sec)
 
 % Noise terms
 constants.gyro.ARW = 0.012;      % Gyro Angle Random Walk (deg/rt-hr)
+constants.gyro.ARW_sigma = degtorad(constants.gyro.ARW) * sqrt(constants.Fs / 3600);
 
 % Scale factor stability & misalignment terms
 s_g_x = 50 * 1e-6;             % x-axis scale factor error (ppm * 1e-6)
@@ -51,21 +52,21 @@ constants.gyro.M_g = ...
     m_g_yx, s_g_y , m_g_yz; ...
     m_g_zx, m_g_zy, s_g_z ];
    
-g_sens = degtorad(0.5);  % Gyro G-sensitivity (rad/sec/g)
+g_sens = degtorad(0.5)/9.81;  % Gyro G-sensitivity (rad/sec/g)
 
 constants.gyro.G_g = ...        % The gyro G-sensitivity matrix (rad/sec/g)
    [g_sens , 0      , 0; ...    
     0      , g_sens , 0; ...
     0      , 0      , g_sens ];
 
-constants.gyro.Q = 2 * constants.gyro.b_g_BI_sigma^2 / constants.gyro.BI.correlation_time;
+%constants.gyro.Q = 2 * constants.gyro.b_g_BI_sigma^2 / constants.gyro.BI.correlation_time;
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Accelerometer specific terms
 
 % Bias terms
 constants.accel.b_a_FB = 0;                     % Bias - Fixed Bias term (m/s^2)
-constants.accel.b_a_BS = 0;   %%                  % Bias - Bias Stability Bias term (m/s^2)
+constants.accel.b_a_BS = 0;                     % Bias - Bias Stability Bias term (m/s^2)
 constants.accel.b_a_BI_sigma = 0.05E-3 * 9.81;  % Bias - Bias Instability Bias term 1-sigma (m/s^2)
 constants.accel.BI.correlation_time = 3600;     % Correlation time for the bias instability (sec)
 
@@ -89,7 +90,8 @@ constants.accel.M_a = ...
     m_a_yx, s_a_y , m_a_yz; ...
     m_a_zx, m_a_zy, s_a_z ];
 
-constants.accel.Q = 2 * constants.accel.b_a_BI_sigma^2 / constants.accel.BI.correlation_time;
-
+%constants.accel.Q = 2 * constants.accel.b_a_BI_sigma^2 / constants.accel.BI.correlation_time;
 
 disp(constants)
+disp(constants.gyro)
+disp(constants.accel)
