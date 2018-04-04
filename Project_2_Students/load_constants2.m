@@ -8,7 +8,7 @@
 constants.Fs  = 100;                % Sample frequency (Hz)
 constants.dt  = 1/constants.Fs;     % Sample interval (sec)
 constants.t_start = 0;              % Simulation start time (sec)
-constants.t_end = 60;              % Simulation end time (sec)
+constants.t_end = 180;              % Simulation end time (sec)
 %------------------------------------------------------------------------------
 % Earth model parameters
 %------------------------------------------------------------------------------
@@ -34,6 +34,7 @@ constants.gyro.BI.correlation_time = 3600; % Correlation time for the bias insta
 % Noise terms
 constants.gyro.ARW = 0.012;      % Gyro Angle Random Walk (deg/rt-hr)
 constants.gyro.ARW_sigma = degtorad(constants.gyro.ARW) * sqrt(constants.Fs / 3600);
+constants.gyro.ARW_correlation_time = 3600;     % Correlation time for the ARW (sec)
 
 % Scale factor stability & misalignment terms
 s_g_x = 50 * 1e-6;             % x-axis scale factor error (ppm * 1e-6)
@@ -59,19 +60,19 @@ constants.gyro.G_g = ...        % The gyro G-sensitivity matrix (rad/sec/g)
     0      , g_sens , 0; ...
     0      , 0      , g_sens ];
 
-%constants.gyro.Q = 2 * constants.gyro.b_g_BI_sigma^2 / constants.gyro.BI.correlation_time;
-
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Accelerometer specific terms
 
 % Bias terms
 constants.accel.b_a_FB = 0;                     % Bias - Fixed Bias term (m/s^2)
-constants.accel.b_a_BS = 0;                     % Bias - Bias Stability Bias term (m/s^2)
+constants.accel.b_a_BS_sigma = 0;               % Bias - Bias Stability Bias term (m/s^2)
 constants.accel.b_a_BI_sigma = 0.05E-3 * 9.81;  % Bias - Bias Instability Bias term 1-sigma (m/s^2)
 constants.accel.BI.correlation_time = 3600;     % Correlation time for the bias instability (sec)
 
 % Noise terms
 constants.accel.VRW = 0.12E-3 * 9.81;           % Accel Angle Random Walk ((m/s^2)/rt-Hz)
+constants.accel.VRW_sigma = constants.accel.VRW * sqrt(constants.Fs / 3600);
+constants.accel.VRW_correlation_time = 3600;     % Correlation time for the ARW (sec)
 
 % Scale factor stability & misalignment terms
 s_a_x = 250 * 1e-6;             % x-axis scale factor error (ppm * 1e-6)
@@ -89,8 +90,6 @@ constants.accel.M_a = ...
    [s_a_x , m_a_xy, m_a_xz; ... % The combined Misalignment / Scale Factor matrix (dimensionless)
     m_a_yx, s_a_y , m_a_yz; ...
     m_a_zx, m_a_zy, s_a_z ];
-
-%constants.accel.Q = 2 * constants.accel.b_a_BI_sigma^2 / constants.accel.BI.correlation_time;
 
 disp(constants)
 disp(constants.gyro)

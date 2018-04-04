@@ -69,7 +69,7 @@ w_b__i_b_tilde = b_g + (eye(3) + constants.gyro.M_g)*w_b__i_b + ...
                  constants.gyro.G_g*f_b__i_b + b_g_ARW;
 
 % Update Markov ARW terms
-Q_d = constants.gyro.ARW_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.ARW_correlation_time));
+Q_d = constants.gyro.ARW_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.BI.correlation_time));
 w_g_ARW = sqrt(Q_d*Fs) * randn(3,1);
 
 % Accelerometer Model
@@ -105,19 +105,15 @@ end
 % Bias terms
 b_a_FB = constants.accel.b_a_FB;
 b_a_BI = exp(-tau_s/constants.accel.BI.correlation_time)*b_a_BI + w_a_BI;    % Bias - Markov Instability Bias term (rad/s)
-% b_a_BI = constants.accel.b_a_BI_sigma;  % Bias - Markov Bias Instability Bias term (m/s^2)
+b_a_BI = constants.accel.b_a_BI_sigma;  % Bias - Markov Bias Instability Bias term (m/s^2)
 b_a = b_a_BI + b_a_FB + b_a_BS;         % All three bias terms (m/s^2)
 
-% Update Markov BI terms
-Q_d = constants.accel.b_a_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.accel.BI.correlation_time));
-w_a_BI = sqrt(Q_d*Fs) * randn(3,1);
-
-% Noise - Markov VRW term (m/s/s)
+% Noise - Markov VRW term (rad/s)
 b_a_VRW = exp(-tau_s/constants.accel.BI.correlation_time)*b_a_VRW + w_a_VRW;
 f_b__i_b_tilde = b_a + (eye(3) + constants.gyro.M_g)*f_b__i_b + b_a_VRW;
 
 % Update Markov ARW terms
-Q_d = constants.accel.VRW_sigma^2 * (1 - exp(-2 * tau_s / constants.accel.VRW_correlation_time));
+Q_d = constants.accel.VRW_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.BI.correlation_time));
 w_a_VRW = sqrt(Q_d*Fs) * randn(3,1);
 
 

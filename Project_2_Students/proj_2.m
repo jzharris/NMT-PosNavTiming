@@ -201,21 +201,3 @@ for i=1:N
 end
 
 plot_IMU(constants, w_b__i_b, f_b__i_b, w_b__i_b_tilde, f_b__i_b_tilde)
-
-% figure;
-% subplot(3,1,1)
-% plot(t_sec, radtodeg(W_g(1,:)),'k.','MarkerSize',2)
-% disp(std(W_g(1,:)))
-% disp(mean(W_g(1,:)))
-% disp('--')
-% subplot(3,1,2)
-% plot(t_sec, radtodeg(W_g(2,:)),'k.','MarkerSize',2)
-% disp(std(W_g(2,:)))
-% disp(mean(W_g(2,:)))
-% disp('--')
-% subplot(3,1,3)
-% plot(t_sec, radtodeg(W_g(3,:)),'k.','MarkerSize',2)
-% disp(std(W_g(3,:)))
-% disp(mean(W_g(3,:)))
-% disp('--')
-% xlabel('Time (sec)')
