@@ -34,7 +34,7 @@ constants.gyro.BI.correlation_time = 3600; % Correlation time for the bias insta
 % Noise terms
 constants.gyro.ARW = 0.012;      % Gyro Angle Random Walk (deg/rt-hr)
 constants.gyro.ARW_sigma = degtorad(constants.gyro.ARW) * sqrt(constants.Fs / 3600);
-constants.gyro.ARW_correlation_time = 3600;     % Correlation time for the ARW (sec)
+constants.gyro.ARW_PSD = degtorad(constants.gyro.ARW)^2 / 3600; % (rad/s)^2 / Hz
 
 % Scale factor stability & misalignment terms
 s_g_x = 50 * 1e-6;             % x-axis scale factor error (ppm * 1e-6)
@@ -72,7 +72,7 @@ constants.accel.BI.correlation_time = 3600;     % Correlation time for the bias 
 % Noise terms
 constants.accel.VRW = 0.12E-3 * 9.81;           % Accel Angle Random Walk ((m/s^2)/rt-Hz)
 constants.accel.VRW_sigma = constants.accel.VRW * sqrt(constants.Fs / 3600);
-constants.accel.VRW_correlation_time = 3600;     % Correlation time for the ARW (sec)
+constants.accel.VRW_PSD = constants.accel.VRW^2 / 3600; % (m/s/s)^2 / Hz
 
 % Scale factor stability & misalignment terms
 s_a_x = 250 * 1e-6;             % x-axis scale factor error (ppm * 1e-6)
