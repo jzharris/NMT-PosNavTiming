@@ -200,7 +200,7 @@ for i=1:N
     [w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i)] = IMU(constants, w_b__i_b(:,i), f_b__i_b(:,i));
 end
 
-plot_IMU(constants, w_b__i_b, f_b__i_b, w_b__i_b_tilde, f_b__i_b_tilde)
+% plot_IMU(constants, w_b__i_b, f_b__i_b, w_b__i_b_tilde, f_b__i_b_tilde)
 
 %==========================================================================
 %% ECEF Mechanization (Ground Truth - Error Free)
@@ -217,11 +217,12 @@ plot_IMU(constants, w_b__i_b, f_b__i_b, w_b__i_b_tilde, f_b__i_b_tilde)
 % for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), w, f)
 %     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
 %      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
-%      w_b__i_b(:,i), f_b__i_b(:,i), 'Low'); % Error free IMU
+%      w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
 % end
 % 
 % % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
 % plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
+% plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
 
 %==========================================================================
 %% ECEF Mechanization (With Error)
@@ -243,3 +244,4 @@ end
 
 % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
 plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
+plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)

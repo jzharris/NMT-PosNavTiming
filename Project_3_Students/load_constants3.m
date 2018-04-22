@@ -8,7 +8,7 @@
 constants.Fs  = 100;                % Sample frequency (Hz)
 constants.dt  = 1/constants.Fs;     % Sample interval (sec)
 constants.t_start = 0;              % Simulation start time (sec)
-constants.t_end = 180;              % Simulation end time (sec)
+constants.t_end = 300;              % Simulation end time (sec)
 %------------------------------------------------------------------------------
 % Earth model parameters
 %------------------------------------------------------------------------------
@@ -91,6 +91,14 @@ constants.accel.M_a = ...
     m_a_yx, s_a_y , m_a_yz; ...
     m_a_zx, m_a_zy, s_a_z ];
 
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% GPS specific terms
+
+constants.gps.position_sigma = 3;       % (m)
+constants.gps.velocity_sigma = 0.01;    % (m/s)
+constants.gps.Fs = 1;                   % (Hz)
+
 disp(constants)
 disp(constants.gyro)
 disp(constants.accel)
+disp(constants.gps)
