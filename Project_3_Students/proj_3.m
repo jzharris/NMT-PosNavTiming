@@ -17,9 +17,9 @@ load_constants3;                     % Load a file of constants
 Fs = constants.Fs;                  % Sample frequency (Hz)
 dt = constants.dt;                  % Sample interval (sec)
 
-%==============================================================================
+%==========================================================================
 % Generate simulation time vector
-%==============================================================================
+%==========================================================================
 t_sec = (constants.t_start:constants.dt:constants.t_end)';        % Simulation time vector
 N = length(t_sec);                  % Length of the simulation time vector
 constants.N = N;
@@ -211,8 +211,8 @@ for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-)
 end
 
 % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
-plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
-plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
+% plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
+% plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
 
 %==========================================================================
 %% Part III. Generate the IMU measurements (With Error)
@@ -246,8 +246,8 @@ for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-)
 end
 
 % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
-plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
-plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
+% plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
+% plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
 
 %==========================================================================
 %% Part IV. Aided INS
@@ -263,3 +263,14 @@ for i=1:step:N
         r_e__e_b(:,i), v_e__e_n(:,i));
 end
 
+% Cycle through times and come up with better PVA, x'
+for i=1:N
+    %f_calibrated = f_tilde - b;
+    
+    
+    if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
+        
+    else
+        
+    end
+end
