@@ -1,5 +1,5 @@
 %% Script/Function Description:
-%   Main script which generates the Navigation System Ground Truth and calls the Mechanization functions
+%   Main script which generates the probabilities and calls the IMU functions
 %
 % NOTES:
 %   - Matrix(row, col, time)
@@ -12,21 +12,23 @@ clear all   % Remove all items from workspace - release system memory
 close all   % Close all open figures (i.e. plots)
 clc         % Clear the command window
 
-load_constants1;                     % Load a file of constants
+load_constants3;                     % Load a file of constants
 
 Fs = constants.Fs;                  % Sample frequency (Hz)
 dt = constants.dt;                  % Sample interval (sec)
 
-%==============================================================================
+%==========================================================================
 % Generate simulation time vector
-%==============================================================================
+%==========================================================================
 t_sec = (constants.t_start:constants.dt:constants.t_end)';        % Simulation time vector
 N = length(t_sec);                  % Length of the simulation time vector
 constants.N = N;
 
-%==============================================================================
-% Generate the ground truth data
-%==============================================================================
+%==========================================================================
+%% Part I. Generate the ground truth data
+%==========================================================================
+
+%--------------------------------------------------------------------------
 %% ECI to ECEF Coordinate Frame
 %--------------------------------------------------------------------------
 % Generate Angular Velocity
@@ -55,7 +57,7 @@ v_i__i_e = [0; 0; 0];               % Velocity of e-frame wrt i-frame (m/s)
 % Generate Acceleration
 a_i__i_e = [0; 0; 0];               % Acceleration of e-frame wrt i-frame (m/s^2)
 
-%==========================================================================
+%--------------------------------------------------------------------------
 %% ECEF to Navigation
 %--------------------------------------------------------------------------
 % The curvlinear coordinates of the origin of the radar tracking frame
@@ -135,6 +137,7 @@ for i=1:N                                   % Eqn 2.97
     a_i__i_n(:,i) = C_i__e(:,:,i)*(a_e__e_n(:,i) + 2*Ohm_i__i_e*v_e__e_n(:,i) + Ohm_i__i_e*Ohm_i__i_e*r_e__e_n(:,i)); % Eqn 2.96
 end
 
+%--------------------------------------------------------------------------
 %% Navigation to Body frame
 %--------------------------------------------------------------------------
 a=10000; b=5; w=0.03;     % Some constants for this example
@@ -173,7 +176,7 @@ v_n__n_b = [0; 0; 0];              % Velocity of b-frame wrt n-frame
 % Generate acceleration
 a_n__n_b = [0; 0; 0];              % Acceleration of b-frame wrt n-frame
 
-%==========================================================================
+%--------------------------------------------------------------------------
 %% Generate the IMU measurements (Ground Truth - Error Free)
 %--------------------------------------------------------------------------
 %  Error free (i.e. ground truth) IMU measurements measurements
@@ -189,127 +192,105 @@ for i=1:N
     f_b__i_b(:,i) = C_i__b(:,:,i)' * f_i__i_b;  % Eqn 2.76
 end
 
-% %==========================================================================
-% %% ECI Mechanization
-% %==========================================================================
-r_i__i_b_INS = zeros(3,N);
-v_i__i_b_INS = zeros(3,N);
-C_i__b_INS = zeros(3,3,N);
+%==========================================================================
+%% Part II. ECEF Mechanization (Ground Truth - Error Free)
+%==========================================================================
+r_e__e_b_INS = zeros(3,N);
+v_e__e_b_INS = zeros(3,N);
+C_e__b_INS = zeros(3,3,N);
 
 % Initialize the INS mechanization (Use ground truth)
-C_i__b_INS(:,:,1) = C_i__b(:,:,1);      % No errors in the initialization
-v_i__i_b_INS(:,1) = v_i__i_n(:,1);      % Remember: the origin of b-frame = origin of n-frame
-r_i__i_b_INS(:,1) = r_i__i_n(:,1);
+C_e__b_INS(:,:,1) = C_e__b(:,:,1);      % No errors in the initialization
+v_e__e_b_INS(:,1) = v_e__e_n(:,1);      % Remember: the origin of b-frame = origin of n-frame
+r_e__e_b_INS(:,1) = r_e__e_b(:,1);
 
-for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECI_mech(PVA(-), w, f)
-    [r_i__i_b_INS(:,i)  , v_i__i_b_INS(:,i)  , C_i__b_INS(:,:,i)] = ECI_mech(constants, ...
-     r_i__i_b_INS(:,i-1), v_i__i_b_INS(:,i-1), C_i__b_INS(:,:,i-1), ...
+for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), w, f)
+    [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
+     r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
      w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
 end
 
-% Plot the ECI PVA Ground truth, INS derived PVA, & Error betw the two
-plot_PVA(constants, r_i__i_n, v_i__i_n, C_i__b, r_i__i_b_INS, v_i__i_b_INS, C_i__b_INS, 'ECI')
-
-% %==========================================================================
-% %% ECEF Mechanization
-% %==========================================================================
-% r_e__e_b_INS = zeros(3,N);
-% v_e__e_b_INS = zeros(3,N);
-% C_e__b_INS = zeros(3,3,N);
-% 
-% % Initialize the INS mechanization (Use ground truth)
-% C_e__b_INS(:,:,1) = C_e__b(:,:,1);      % No errors in the initialization
-% v_e__e_b_INS(:,1) = v_e__e_n(:,1);      % Remember: the origin of b-frame = origin of n-frame
-% r_e__e_b_INS(:,1) = r_e__e_b(:,1);
-% 
-% for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), w, f)
-%     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
-%      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
-%      w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
-% end
-% 
-% % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
+% Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
 % plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
-% 
-% %==========================================================================
-% %% Nav Mechanization
-% %==========================================================================
-r_n__e_b_INS = zeros(3,N);
-v_n__e_b_INS = zeros(3,N);
-C_n__b_INS = zeros(3,3,N);
-
-r_n__e_b = zeros(3,N);
-v_n__e_b = zeros(3,N);
-
-for i=1:N
-    r_n__e_b(:,i) = C_e__n(:,:,i)' * r_e__e_b(:,i);
-    v_n__e_b(:,i) = C_e__n(:,:,i)' * v_e__e_n(:,i);
-end
-
-% Initialize the INS mechanization (Use ground truth)
-C_n__b_INS(:,:,1) = C_n__b(:,:,1);      % No errors in the initialization
-v_n__e_b_INS(:,1) = v_n__e_b(:,1);      % Remember: the origin of b-frame = origin of n-frame
-r_n__e_b_INS(:,1) = r_e__e_b(:,1);
-
-for i=2:N  % Call the mechanization at each iteration: PVA(+) = Nav_mech(PVA(-), w, f)
-    [r_n__e_b_INS(:,i)  , v_n__e_b_INS(:,i)  , C_n__b_INS(:,:,i)] = Nav_mech(constants, ...
-     r_n__e_b_INS(:,i-1), v_n__e_b_INS(:,i-1), C_n__b_INS(:,:,i-1), ...
-     w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
-end
-
-% Plot the Nav PVA Ground truth, INS derived PVA, & Error betw the two
-plot_PVA(constants, r_e__e_b, v_n__e_b, C_n__b, r_n__e_b_INS, v_n__e_b_INS, C_n__b_INS, 'NAV')
+% plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
 
 %==========================================================================
-%% Plot the motion profile relative to the ships starting position
+%% Part III. Generate the IMU measurements (With Error)
+%==========================================================================
+%  With-Error IMU measurements measurements
+w_b__i_b_tilde = zeros(3,N);  % Angular velocity of b-frame wrt i-frame resolved in i-frame
+f_b__i_b_tilde = zeros(3,N);  % Specific force   of b-frame wrt i-frame resolved in i-frame
+
+for i=1:N
+    [w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i)] = IMU(constants, w_b__i_b(:,i), f_b__i_b(:,i));
+end
+
+% plot_IMU(constants, w_b__i_b, f_b__i_b, w_b__i_b_tilde, f_b__i_b_tilde)
+
 %--------------------------------------------------------------------------
-start_pos = llh2xyz(constants, L_t(1), lambda_t(1), 0);     % ECEF starting position of ship's radar (above surface of sea)
-n_points = 100;                 % Number of points to plot
-inc = floor(N/n_points);        % Increment
-pos = zeros(3,n_points);        % Initialize
+%% ECEF Mechanization (With Error)
+%--------------------------------------------------------------------------
+r_e__e_b_INS = zeros(3,N);
+v_e__e_b_INS = zeros(3,N);
+C_e__b_INS = zeros(3,3,N);
 
-                   
-for i=1:n_points                % Compute the ships's position wrt the ship's initial position
-    j = 1 + (i-1) * inc;
-    pos(:,i) = C_e__n_ship_start' * (r_e__e_t(:,j) - start_pos);
+% Initialize the INS mechanization (Use ground truth)
+C_e__b_INS(:,:,1) = C_e__b(:,:,1);      % No errors in the initialization
+v_e__e_b_INS(:,1) = v_e__e_n(:,1);      % Remember: the origin of b-frame = origin of n-frame
+r_e__e_b_INS(:,1) = r_e__e_b(:,1);
+
+for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), w, f)
+    [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
+     r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
+     w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High'); % Error free IMU
 end
-% Plot the motion of the ship
 
-figure,
-stem3(pos(1,:), -pos(2,:), -pos(3,:),'g')  % Plot in terms of North, West, and Up
-title('Motion of the Radar (on the ship) wrt the Ship''s Starting Position')
-xlabel('North (m)')
-ylabel('West (m)')
-zlabel('Up (m)')
-view(-76, 46)
-text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1]) 
+% Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
+% plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
+% plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
 
-for i=1:n_points                % Compute the ships's position wrt the ship's initial position
-    j = 1 + (i-1) * inc;
-    pos(:,i) = C_e__n_ship_start' * (r_e__e_b(:,j) - start_pos);
+%==========================================================================
+%% Part IV. Aided INS
+%==========================================================================
+
+% TODO: double check PSD's in Q matrix
+
+r_e__e_b_GPS = zeros(3,N);
+v_e__e_b_GPS = zeros(3,N);
+
+% Get noisy GPS data from truth, tuned to update freq of GPS
+step = constants.Fs / constants.gps.Fs;
+for i=1:step:N
+    [r_e__e_b_GPS(:,i), v_e__e_b_GPS(:,i)] = GPS(constants, ...
+        r_e__e_b(:,i), v_e__e_n(:,i));
 end
-% Plot the motion of the ship
 
-figure,
-stem3(pos(1,:), -pos(2,:), -pos(3,:),'b')  % Plot in terms of North, West, and Up
-title('Motion of the Aircraft wrt the Ship''s Starting Position')
-xlabel('North (m)')
-ylabel('West (m)')
-zlabel('Up (m)')
-view(-76, 46)
-text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1])
+% P = E{e * e^T)
+% for n
+%   f' = f' - b
+%   [curr] = mech(f', w, [prev], x')
+%   if GPS:
+%       find F and G using x and z
+%       I = discrete_F(F, dt)
+%       Q_d = discrete_Q(I, G)
+%       z = 
+%       [P,x'] = kalman(P,H,R,Q_d,I,z,x)
+%       b' = b + xb
+%   else:
+%       x' = 0
 
-% for i=1:n_points                % Compute the ships's position wrt the ship's initial position
-%     j = 1 + (i-1) * inc;
-%     pos(:,i) = C_e__n_ship_start' * (r_e__e_b_INS(:,j) - start_pos);
-% end
-% % Plot the motion of the ship
-% 
-% figure,
-% stem3(pos(1,:), -pos(2,:), -pos(3,:),'k')  % Plot in terms of North, West, and Up
-% title('Motion of the Aircraft wrt the Ship''s Starting Position')
-% xlabel('North (m)')
-% ylabel('West (m)')
-% zlabel('Up (m)')
-% % view(-76, 46)
-% text(pos(1,1), -pos(2,1), -pos(3,1),'start \rightarrow ','HorizontalAlignment','right','BackgroundColor',[1 1 1])
+
+
+% Cycle through times and come up with better PVA, x'
+for i=1:N
+    %f_calibrated = f_tilde - b;
+    
+    
+    if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
+        % find F:
+        % Initial F: matrix after state augmentation
+        [F, G] = determine_FG(constants, C_e__b_meas, f_calibrated, r_e__e_b_GPS(:,i));
+    else
+        
+    end
+end

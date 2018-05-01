@@ -253,6 +253,8 @@ end
 %% Part IV. Aided INS
 %==========================================================================
 
+% TODO: double check PSD's in Q matrix
+
 r_e__e_b_GPS = zeros(3,N);
 v_e__e_b_GPS = zeros(3,N);
 
@@ -263,12 +265,42 @@ for i=1:step:N
         r_e__e_b(:,i), v_e__e_n(:,i));
 end
 
+% P = E{e * e^T)
+% for n
+%   f' = f' - b
+%   [curr] = mech(f', w, [prev], x')
+%   if GPS:
+%       find F and G using x and z
+%       I = discrete_F(F, dt)
+%       Q_d = discrete_Q(I, G)
+%       z = 
+%       [P,x'] = kalman(P,H,R,Q_d,I,z,x)
+%       b' = b + xb
+%   else:
+%       x' = 0
+
+
+
 % Cycle through times and come up with better PVA, x'
-for i=1:N
-    %f_calibrated = f_tilde - b;
+for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), w, f)
     
+end
+
+for i=2:N
+    
+    % Calibrate for bias each time
+    f_calibrated = f_b__i_b_tilde(:,i) - b;
+    
+    % Run mechanization
+    [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
+     r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
+     w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High');
     
     if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
+        % Fina F and G: matrix after state augmentation
+        [F, G] = determine_FG(constants, C_e__b_INS(:,:,i), f_calibrated, r_e__e_b_INS(:,i));
+        
+        [Phi, Q_d] = discrete_FQ(constants, F, G);
         
     else
         

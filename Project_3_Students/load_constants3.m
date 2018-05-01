@@ -20,6 +20,10 @@ constants.Rp = 6356752.3142;        % Earth's polar radius (meters)
 constants.e = 0.0818191908425;      % Eccentricity
 constants.f = 1 / 298.257223563;    % Flattening from page 38 of text
 
+constants.Ohm_e__i_e = [    0 -1  0;
+                            1  0  0;
+                            0  0  0;    ] * constants.w_ie;
+
 %--------------------------------------------------------------------------
 % IMU error characterization values - KVH 1750 IMU
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -29,6 +33,7 @@ constants.f = 1 / 298.257223563;    % Flattening from page 38 of text
 constants.gyro.b_g_FB = zeros(3, 1);      % Bias - Fixed Bias term (rad/s)
 constants.gyro.b_g_BS_sigma = degtorad(1)/3600;  % Bias - Bias Stability Bias term 1-sigma (rad/s)
 constants.gyro.b_g_BI_sigma = degtorad(0.1)/3600;  % Bias - Bias Instability Bias term 1-sigma (rad/s)
+constants.gyro.b_g_BI_PSD = degtorad(0.1)^2 / 3600;
 constants.gyro.BI.correlation_time = 3600; % Correlation time for the bias instability (sec)
 
 % Noise terms
@@ -67,6 +72,7 @@ constants.gyro.G_g = ...        % The gyro G-sensitivity matrix (rad/sec/g)
 constants.accel.b_a_FB = 0;                     % Bias - Fixed Bias term (m/s^2)
 constants.accel.b_a_BS_sigma = 0;               % Bias - Bias Stability Bias term (m/s^2)
 constants.accel.b_a_BI_sigma = 0.05E-3 * 9.81;  % Bias - Bias Instability Bias term 1-sigma (m/s^2)
+constants.accel.b_a_BI_PSD = degtorad(0.05E-3 * 9.81)^2 / 3600;
 constants.accel.BI.correlation_time = 3600;     % Correlation time for the bias instability (sec)
 
 % Noise terms
@@ -102,3 +108,38 @@ disp(constants)
 disp(constants.gyro)
 disp(constants.accel)
 disp(constants.gps)
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Kalman Filter constants
+
+zer = zeros(3,3);
+I3 = eye(3);
+        
+% Initial Q: E{x * x'}
+constants.Q = [ constants.gyro.ARW_PSD * I3     zer                         zer     zer                             zer;
+                zer                             constants.accel.VRW_PSD     zer     zer                             zer;
+                zer                             zer                         zer     zer                             zer;
+                zer                             zer                         zer     constants.accel.b_a_BI_PSD      zer;
+                zer                             zer                         zer     zer                             constants.gyro.b_g_BI_PSD;  ];
+
+% Initial R: E{z * z'}
+constants.R = [ constants.gps.position_sigma^2 * I3     zer;
+                zer                                     constants.gps.velocity_sigma^2 * I3;  ];
+
+% Initial H: maps z to state error, x --> only take position and velocity terms
+constants.H = [ zer zer I3  zer zer;
+                zer I3  zer zer zer; ];
+
+% Initial P: E{e * e'}
+constants.P = [ 1e-9*I3 zer                                 zer                                 zer     zer;
+                zer     constants.gps.velocity_sigma^2*I3   zer                                 zer     zer;
+                zer     zer                                 constants.gps.position_sigma^2*I3   zer     zer;
+                zer     zer                                 zer                                 1e-9*I3 zer;
+                zer     zer                                 zer                                 zer     1e-9*I3;    ];
+         
+% Q(t) matrix
+Q_d = 2 * constants.gyro.b_g_BI_sigma^2 / constants.gyro.BI.correlation_time;
+% Q_d = constants.gyro.b_g_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.BI.correlation_time));
+constants.Q_t = [   zer     zer                             zer;
+                    zer     constants.constants.accel.VRW^2 zer;
+                    zer     zer                             Q_d;    ];
