@@ -1,8 +1,0 @@
-function [Phi, Q_d] = discrete_FQ (constants, F, G)
-
-Phi = eye(15) + F * constants.dt;
-% Q_k_1 = .5*(Phi_k_1*G_k_1*Q*G_k_1'*Phi_k_1'+G_k_1*Q*G_k_1)*dt;
-
-Q_d = 0.5 * 
-
-end

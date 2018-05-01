@@ -279,17 +279,14 @@ end
 %   else:
 %       x' = 0
 
+b_kf_est = 0;   % Kalman filter bias estimates
+x_kf_est = 0;   % Kalman filter error estimates
 
-
-% Cycle through times and come up with better PVA, x'
-for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), w, f)
-    
-end
-
+% Cycle through times and come up with better PVA through closed-loop KF
 for i=2:N
     
     % Calibrate for bias each time
-    f_calibrated = f_b__i_b_tilde(:,i) - b;
+    f_calibrated = f_b__i_b_tilde(:,i) - b_kf_est;
     
     % Run mechanization
     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
@@ -297,12 +294,23 @@ for i=2:N
      w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High');
     
     if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
-        % Fina F and G: matrix after state augmentation
+        % Find F and G: matrix after state augmentation
         [F, G] = determine_FG(constants, C_e__b_INS(:,:,i), f_calibrated, r_e__e_b_INS(:,i));
         
+        % Find discrete F and G
         [Phi, Q_d] = discrete_FQ(constants, F, G);
         
-    else
+        % Determine z
+        z = [   r_e__e_b_GPS(:,i) - r_e__e_b_INS(:,i);
+                v_e__e_b_GPS(:,i) - v_e__e_b_INS(:,i);  ];
         
+        % Run Kalman filter
+        [x_kf_est, P] = Kalman(constants, x_kf_est, P, z, Phi, Q_d);
+        
+        % Correct bias factor
+        % (?)
+        %b_kf_est = b_kf_est - x_kf_est * b_kf_est;
+    else
+        x_kf_est = 0;
     end
 end
