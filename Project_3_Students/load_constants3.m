@@ -105,11 +105,6 @@ constants.gps.velocity_sigma = 0.01;    % (m/s)
 constants.gps.Fs = 1;                   % (Hz)
 constants.gps.dt = 1/constants.gps.Fs;
 
-disp(constants)
-disp(constants.gyro)
-disp(constants.accel)
-disp(constants.gps)
-
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Kalman Filter constants
 
@@ -138,5 +133,10 @@ constants.P = [ 1e-9*I3 zer                                 zer                 
                 zer     zer                                 zer                                 1e-9*I3 zer;
                 zer     zer                                 zer                                 zer     1e-9*I3;    ];
 
+
+disp(constants)
+disp(constants.gyro)
+disp(constants.accel)
+disp(constants.gps)
 
                 

@@ -21,8 +21,8 @@ end
 Q_d_g = constants.gyro.b_g_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.BI.correlation_time));
 Q_d_a = constants.accel.b_a_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.accel.BI.correlation_time));
 
-Q_11 = (Q_d_g)^2 * I3;
-Q_22 = (Q_d_a)^2 * I3;
+Q_11 = (Q_d_g * constants.Fs)^2 * I3;
+Q_22 = (Q_d_a * constants.Fs)^2 * I3;
 Q_44 = constants.gyro.b_g_BI_PSD^2 * I3;
 Q_55 = constants.accel.b_a_BI_PSD^2 * I3;
 
