@@ -2,7 +2,7 @@ function [x_kf_est, P] = Kalman(constants, x_kf_est, P, z, Phi, Q)
 
 H = constants.H;
 R = constants.R;
-I = eye(5);
+I = eye(15);
 
 % Compute Kalman gain
 K = (P * H') / (H * P * H' + R);

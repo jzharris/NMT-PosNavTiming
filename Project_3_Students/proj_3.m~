@@ -253,6 +253,8 @@ end
 %% Part IV. Aided INS
 %==========================================================================
 
+% TODO: double check PSD's in Q matrix
+
 r_e__e_b_GPS = zeros(3,N);
 v_e__e_b_GPS = zeros(3,N);
 
@@ -277,27 +279,16 @@ for i=2:N
     f_calibrated = f_b__i_b_tilde(:,i) - b_a_kf_est;
     w_calibrated = w_b__i_b_tilde(:,i) - b_g_kf_est;
     
+    % Calibrate values from Kalman estimate
+    disp(eye(3) - eye(3) * x_kf_est(1:3));
+    C_e__b_INS(:,:,i) = C_e__b_INS(:,:,i) * (eye(3) - eye(3) * x_kf_est(1:3));
+    v_e__e_b_INS(:,i) = v_e__e_b_INS(:,i) - x_kf_est(4:6);
+    r_e__e_b_INS(:,i) = r_e__e_b_INS(:,i) - x_kf_est(7:9);
+    
     % Run mechanization
     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
      w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High');
- 
-    % Calibrate values from Kalman estimate
-    R_x = [ 1   0                   0;
-            0   cos(x_kf_est(1))    -sin(x_kf_est(1));
-            0   sin(x_kf_est(1))    cos(x_kf_est(1));   ];
-        
-    R_y = [ cos(x_kf_est(2))    0   sin(x_kf_est(2));
-            0                   1   0;
-            -sin(x_kf_est(2))   0   cos(x_kf_est(2));   ];
-        
-    R_z = [ cos(x_kf_est(3))    -sin(x_kf_est(3))   0;
-            sin(x_kf_est(3))    cos(x_kf_est(3))    0;
-            0                   0                   1;  ];
-            
-    C_e__b_INS(:,:,i) = R_z * R_y * R_z * C_e__b_INS(:,:,i);
-    v_e__e_b_INS(:,i) = v_e__e_b_INS(:,i) - x_kf_est(4:6);
-    r_e__e_b_INS(:,i) = r_e__e_b_INS(:,i) - x_kf_est(7:9);
     
     if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
         % Find F and G: matrix after state augmentation
@@ -313,12 +304,12 @@ for i=2:N
         % Run Kalman filter
         [x_kf_est, P] = Kalman(constants, x_kf_est, P, z, Phi, Q_d);
         disp(x_kf_est);
+        disp(vec2ss(vec2ss(ones(3,1) + x_kf_est(1:3))));
         
         % Correct bias factor
         b_a_kf_est = b_a_kf_est + x_kf_est(10:12);
         b_g_kf_est = b_g_kf_est + x_kf_est(13:15);
         
-        % For testing
         if count > 10
             break
         else

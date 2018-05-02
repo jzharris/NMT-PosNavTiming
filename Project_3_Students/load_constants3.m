@@ -103,6 +103,7 @@ constants.accel.M_a = ...
 constants.gps.position_sigma = 3;       % (m)
 constants.gps.velocity_sigma = 0.01;    % (m/s)
 constants.gps.Fs = 1;                   % (Hz)
+constants.gps.dt = 1/constants.gps.Fs;
 
 disp(constants)
 disp(constants.gyro)
@@ -117,10 +118,10 @@ I3 = eye(3);
         
 % Initial Q: E{x * x'}
 constants.Q = [ constants.gyro.ARW_PSD * I3     zer                         zer     zer                             zer;
-                zer                             constants.accel.VRW_PSD     zer     zer                             zer;
+                zer                             constants.accel.VRW_PSD*I3  zer     zer                             zer;
                 zer                             zer                         zer     zer                             zer;
-                zer                             zer                         zer     constants.accel.b_a_BI_PSD      zer;
-                zer                             zer                         zer     zer                             constants.gyro.b_g_BI_PSD;  ];
+                zer                             zer                         zer     constants.accel.b_a_BI_PSD*I3   zer;
+                zer                             zer                         zer     zer                             constants.gyro.b_g_BI_PSD*I3;   ];
 
 % Initial R: E{z * z'}
 constants.R = [ constants.gps.position_sigma^2 * I3     zer;
@@ -136,10 +137,6 @@ constants.P = [ 1e-9*I3 zer                                 zer                 
                 zer     zer                                 constants.gps.position_sigma^2*I3   zer     zer;
                 zer     zer                                 zer                                 1e-9*I3 zer;
                 zer     zer                                 zer                                 zer     1e-9*I3;    ];
-         
-% Q(t) matrix
-Q_d = 2 * constants.gyro.b_g_BI_sigma^2 / constants.gyro.BI.correlation_time;
-% Q_d = constants.gyro.b_g_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.BI.correlation_time));
-constants.Q_t = [   zer     zer                             zer;
-                    zer     constants.constants.accel.VRW^2 zer;
-                    zer     zer                             Q_d;    ];
+
+
+                
