@@ -1,4 +1,4 @@
-function [w_b__i_b_tilde, f_b__i_b_tilde] = IMU(constants,w_b__i_b, f_b__i_b)
+function [w_b__i_b_tilde, f_b__i_b_tilde, b_g, b_a] = IMU(constants,w_b__i_b, f_b__i_b)
 % FUNCTION DESCRIPTION:
 %   Simulates an IMU
 %

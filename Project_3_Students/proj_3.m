@@ -271,9 +271,12 @@ end
 w_b__i_b_tilde = zeros(3,N);  % Angular velocity of b-frame wrt i-frame resolved in i-frame
 f_b__i_b_tilde = zeros(3,N);  % Specific force   of b-frame wrt i-frame resolved in i-frame
 
+b_g = zeros(3,N);
+b_a = zeros(3,N);
+
 for i=1:N
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    [w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i)] = IMU(constants, w_b__i_b(:,i), f_b__i_b(:,i));
+    [w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), b_g(:,i), b_a(:,i)] = IMU(constants, w_b__i_b(:,i), f_b__i_b(:,i));
 %     w_b__i_b_tilde(:,i) = w_b__i_b(:,i);
 %     f_b__i_b_tilde(:,i) = f_b__i_b(:,i);
 end
@@ -306,37 +309,37 @@ plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
 %% Part IV. Aided INS
 %==========================================================================
 
+w_b__i_b_calibrated = zeros(3,N);  % Angular velocity of b-frame wrt i-frame resolved in i-frame
+f_b__i_b_calibrated = zeros(3,N);  % Specific force   of b-frame wrt i-frame resolved in i-frame
+
 r_e__e_b_GPS = zeros(3,N);
 v_e__e_b_GPS = zeros(3,N);
 
 % Get noisy GPS data from truth, tuned to update freq of GPS
 step = constants.Fs / constants.gps.Fs;
 for i=1:step:N
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     [r_e__e_b_GPS(:,i), v_e__e_b_GPS(:,i)] = GPS(constants, ...
-%         r_e__e_b(:,i), v_e__e_n(:,i));
-    r_e__e_b_GPS(:,i) = r_e__e_b(:,i);
-    v_e__e_b_GPS(:,i) = v_e__e_n(:,i);
+    [r_e__e_b_GPS(:,i), v_e__e_b_GPS(:,i)] = GPS(constants, ...
+        r_e__e_b(:,i), v_e__e_n(:,i));
 end
 
 x_kf_est = zeros(15,1);   % Kalman filter error estimates
 P = constants.P;% Initial P matrix
 
-b_a_kf_est = 0; % Kalman filter bias estimate for accelerometer
-b_g_kf_est = 0; % Kalman filter bias estimate for gyroscope
+b_a_kf_est = zeros(3,1); % Kalman filter bias estimate for accelerometer
+b_g_kf_est = zeros(3,1); % Kalman filter bias estimate for gyroscope
 
 count = 0;
 % Cycle through times and come up with better PVA through closed-loop KF
 for i=2:N
     
     % Calibrate for bias each time
-    f_calibrated = f_b__i_b_tilde(:,i) - b_a_kf_est;
-    w_calibrated = w_b__i_b_tilde(:,i) - b_g_kf_est;
+    f_b__i_b_calibrated(:,i) = f_b__i_b_tilde(:,i) + b_a_kf_est;
+    w_b__i_b_calibrated(:,i) = w_b__i_b_tilde(:,i) + b_g_kf_est;
     
     % Run mechanization
     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
-     w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High');
+     w_b__i_b_calibrated(:,i), f_b__i_b_calibrated(:,i), 'High');
  
     % Calibrate values from Kalman estimates
     [r_e__e_b_INS(:,i), v_e__e_b_INS(:,i), C_e__b_INS(:,:,i)] = calibrate_mech(x_kf_est, ...
@@ -344,7 +347,7 @@ for i=2:N
     
     if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
         % Find F and G: matrix after state augmentation
-        [F, G] = determine_FG(constants, C_e__b_INS(:,:,i), f_calibrated, r_e__e_b_INS(:,i));
+        [F, G] = determine_FG(constants, C_e__b_INS(:,:,i), f_b__i_b_calibrated(:,i), r_e__e_b_INS(:,i));
         
         % Find discrete F and G
         [Phi, Q_d] = discrete_FQ(constants, F, G);
@@ -354,25 +357,18 @@ for i=2:N
                 v_e__e_b_GPS(:,i) - v_e__e_b_INS(:,i);  ];
         
         % Run Kalman filter
-%         [x_kf_est, P] = Kalman(constants, zeros(15,1), zeros(15), zeros(6,1), zeros(15), zeros(15));
         [x_kf_est, P] = Kalman(constants, x_kf_est, P, z, Phi, Q_d);
-        disp(x_kf_est);
         
         % Correct bias factor
         b_a_kf_est = b_a_kf_est + x_kf_est(10:12);
         b_g_kf_est = b_g_kf_est + x_kf_est(13:15);
-        
-        % For testing
-%         if count > 10
-%             break
-%         else
-%             count = count + 1;
-%         end
     else
-        % Reset estimate
+        % Reset estimate, since this is a close-loop implementation
         x_kf_est = zeros(15,1);
     end
 end
 
 plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
 plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
+
+plot_IMU(constants, w_b__i_b, f_b__i_b, w_b__i_b_calibrated, f_b__i_b_calibrated)

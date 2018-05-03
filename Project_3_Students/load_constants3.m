@@ -112,11 +112,11 @@ zer = zeros(3,3);
 I3 = eye(3);
         
 % Initial Q: E{x * x'}
-constants.Q = [ constants.gyro.ARW_PSD * I3     zer                         zer     zer                             zer;
-                zer                             constants.accel.VRW_PSD*I3  zer     zer                             zer;
+constants.Q = [ constants.gyro.ARW_PSD^2 * I3     zer                         zer     zer                             zer;
+                zer                             constants.accel.VRW_PSD^2*I3  zer     zer                             zer;
                 zer                             zer                         zer     zer                             zer;
-                zer                             zer                         zer     constants.accel.b_a_BI_PSD*I3   zer;
-                zer                             zer                         zer     zer                             constants.gyro.b_g_BI_PSD*I3;   ];
+                zer                             zer                         zer     constants.accel.b_a_BI_PSD^2*I3   zer;
+                zer                             zer                         zer     zer                             constants.gyro.b_g_BI_PSD^2*I3;   ];
 
 % Initial R: E{z * z'}
 constants.R = [ constants.gps.position_sigma^2 * I3     zer;
