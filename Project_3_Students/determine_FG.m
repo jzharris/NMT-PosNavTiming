@@ -19,8 +19,7 @@ r_e__e_S = RE * sqrt(cos(L_b_meas)^2 + (1 - e^2)^2*sin(L_b_meas)^2);
 delta_g_e__b = (2 * g_0 / r_e__e_S) * (r_e__e_b_meas / norm(r_e__e_b_meas)^2) * r_e__e_b_meas';
 
 % Create the F and G matrices
-F_phi_g = constants.gyro.ARW;
-% F_phi_g = constants.gyro.G_g;                       % F_phi_g = g-sensitivity
+F_phi_g = constants.gyro.ARW;                       % Relates angle to angular accel error
 F_va = constants.accel.VRW;                         % Relates velocity to accel error
 F_aa = - 1 / constants.accel.BI.correlation_time;   % b_a = (-1/T_c)*b + w_b
 F_gg = - 1 / constants.gyro.BI.correlation_time;    % b_g = (-1/T_c)*b + w_b
