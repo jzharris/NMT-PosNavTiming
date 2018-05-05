@@ -48,7 +48,8 @@ b_g_BI = exp(-tau_s/constants.gyro.BI.correlation_time)*b_g_BI + w_g_BI;    % Bi
 b_g = b_g_BI + b_g_FB + b_g_BS;                                             % All three bias terms (rad/s)
 
 % Update Markov BI terms
-Q_d = constants.gyro.b_g_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.BI.correlation_time));
+% Q_d = constants.gyro.b_g_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.gyro.BI.correlation_time));
+Q_d = 2 * constants.gyro.b_g_BI_sigma^2 / constants.gyro.BI.correlation_time;
 w_g_BI = sqrt(Q_d*Fs) * randn(3,1);
 
 % Noise - ARW term (rad/s)
@@ -82,7 +83,8 @@ b_a_BI = exp(-tau_s/constants.accel.BI.correlation_time)*b_a_BI + w_a_BI;    % B
 b_a = b_a_BI + b_a_FB + b_a_BS;         % All three bias terms (m/s^2)
 
 % Update Markov BI terms
-Q_d = constants.accel.b_a_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.accel.BI.correlation_time));
+% Q_d = constants.accel.b_a_BI_sigma^2 * (1 - exp(-2 * tau_s / constants.accel.BI.correlation_time));
+Q_d = 2 * constants.accel.b_a_BI_sigma^2 / constants.accel.BI.correlation_time;
 w_a_BI = sqrt(Q_d*Fs) * randn(3,1);
 
 % Noise - VRW term (m/s/s)

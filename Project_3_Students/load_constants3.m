@@ -112,11 +112,15 @@ zer = zeros(3,3);
 I3 = eye(3);
         
 % Initial Q: E{x * x'}
-constants.Q = [ constants.gyro.ARW_PSD^2 * I3     zer                         zer     zer                             zer;
-                zer                             constants.accel.VRW_PSD^2*I3  zer     zer                             zer;
-                zer                             zer                         zer     zer                             zer;
-                zer                             zer                         zer     constants.accel.b_a_BI_PSD^2*I3   zer;
-                zer                             zer                         zer     zer                             constants.gyro.b_g_BI_PSD^2*I3;   ];
+Q_11 = constants.gyro.ARW_PSD^2 * I3;
+Q_22 = constants.accel.VRW_PSD^2 * I3;
+Q_44 = (2 * constants.accel.b_a_BI_PSD^2 / constants.accel.BI.correlation_time) * I3;
+Q_55 = (2 * constants.gyro.b_g_BI_PSD^2 / constants.gyro.BI.correlation_time) * I3;
+constants.Q = [ Q_11 zer  zer  zer  zer;
+                zer  Q_22 zer  zer  zer;
+                zer  zer  zer  zer  zer;
+                zer  zer  zer  Q_44 zer;
+                zer  zer  zer  zer  Q_55; ];
 
 % Initial R: E{z * z'}
 constants.R = [ constants.gps.position_sigma^2 * I3     zer;
@@ -127,11 +131,16 @@ constants.H = [ zer zer I3  zer zer;
                 zer I3  zer zer zer; ];
 
 % Initial P: E{e * e'}
-constants.P = [ 1e-9*I3 zer                                 zer                                 zer     zer;
-                zer     constants.gps.velocity_sigma^2*I3   zer                                 zer     zer;
-                zer     zer                                 constants.gps.position_sigma^2*I3   zer     zer;
-                zer     zer                                 zer                                 1e-9*I3 zer;
-                zer     zer                                 zer                                 zer     1e-9*I3;    ];
+P_11 = 1e-8*I3;
+P_22 = constants.gps.velocity_sigma^2*I3;
+P_33 = constants.gps.position_sigma^2*I3;
+P_44 = 1e-8*I3;
+P_55 = 1e-8*I3;
+constants.P = [ P_11 zer  zer  zer  zer;
+                zer  P_22 zer  zer  zer;
+                zer  zer  P_33 zer  zer;
+                zer  zer  zer  P_44 zer;
+                zer  zer  zer  zer  P_55; ];
 
 
 disp(constants)

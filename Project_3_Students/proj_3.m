@@ -258,11 +258,13 @@ for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-)
     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
      w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
+    % For tests:
+    C_e__b_INS(:,:,i) = C_e__b(:,:,i);
 end
 
 % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
-% plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
-% plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
+plot_PVA(constants, r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS, 'ECEF')
+plot_err(r_e__e_n, v_e__e_n, C_e__b, r_e__e_b_INS, v_e__e_b_INS, C_e__b_INS)
 
 %==========================================================================
 %% Part III. Generate the IMU measurements (With Error)
@@ -298,7 +300,9 @@ r_e__e_b_INS(:,1) = r_e__e_b(:,1);
 for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-), w, f)
     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
-     w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High'); % Error free IMU
+     w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High');
+    % For tests:
+    C_e__b_INS(:,:,i) = C_e__b(:,:,i);
 end
 
 % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
@@ -322,6 +326,13 @@ for i=1:step:N
         r_e__e_b(:,i), v_e__e_n(:,i));
 end
 
+% Adding droupout of GPS
+% for i=30*constants.Fs:step:60*constants.Fs
+%     r_e__e_b_GPS(:,i) = r_e__e_b_GPS(:,i) + 10*randn(3,1);
+%     v_e__e_b_GPS(:,i) = r_e__e_b_GPS(:,i) + 10*randn(3,1);
+% end
+%plot_GPS(constants, r_e__e_b, r_e__e_b_GPS);
+
 x_kf_est = zeros(15,1);   % Kalman filter error estimates
 P = constants.P;% Initial P matrix
 
@@ -342,8 +353,12 @@ for i=2:N
      w_b__i_b_calibrated(:,i), f_b__i_b_calibrated(:,i), 'High');
  
     % Calibrate values from Kalman estimates
-    [r_e__e_b_INS(:,i), v_e__e_b_INS(:,i), C_e__b_INS(:,:,i)] = calibrate_mech(x_kf_est, ...
-     r_e__e_b_INS(:,i), v_e__e_b_INS(:,i), C_e__b_INS(:,:,i));
+    if any(x_kf_est)
+        [r_e__e_b_INS(:,i), v_e__e_b_INS(:,i), C_e__b_INS(:,:,i)] = calibrate_mech(x_kf_est, ...
+         r_e__e_b_INS(:,i), v_e__e_b_INS(:,i), C_e__b_INS(:,:,i));
+    end
+ 
+    C_e__b_INS(:,:,i) = C_e__b(:,:,i);
     
     if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
         % Find F and G: matrix after state augmentation
