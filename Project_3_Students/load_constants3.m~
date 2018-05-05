@@ -116,23 +116,19 @@ Q_11 = constants.gyro.ARW_PSD^2 * I3;
 Q_22 = constants.accel.VRW_PSD^2 * I3;
 Q_44 = (2 * constants.accel.b_a_BI_PSD^2 / constants.accel.BI.correlation_time) * I3;
 Q_55 = (2 * constants.gyro.b_g_BI_PSD^2 / constants.gyro.BI.correlation_time) * I3;
-                                                % Units:
-constants.Q = [ Q_11 zer  zer  zer  zer;        % [rad]
-                zer  Q_22 zer  zer  zer;        % [m/s]
-                zer  zer  zer  zer  zer;        % [m]
-                zer  zer  zer  Q_44 zer;        % [m/s^2]
-                zer  zer  zer  zer  Q_55; ];    % [rad/s]
+constants.Q = [ Q_11 zer  zer  zer  zer;
+                zer  Q_22 zer  zer  zer;
+                zer  zer  zer  zer  zer;
+                zer  zer  zer  Q_44 zer;
+                zer  zer  zer  zer  Q_55; ];
 
 % Initial R: E{z * z'}
-R_11 = constants.gps.position_sigma^2 * I3;
-R_22 = constants.gps.velocity_sigma^2 * I3;
-                                                % Units:
-constants.R = [ R_11 zer;                       % [m]
-                zer  R_22 ];                    % [m/s]
+constants.R = [ constants.gps.position_sigma^2 * I3     zer;
+                zer                                     constants.gps.velocity_sigma^2 * I3;  ];
 
-% Initial H: maps z to state error, x
-constants.H = [ zer zer I3  zer zer;            % taking position term
-                zer I3  zer zer zer; ];         % taking velocity term
+% Initial H: maps z to state error, x --> only take position and velocity terms
+constants.H = [ zer zer I3  zer zer;
+                zer I3  zer zer zer; ];
 
 % Initial P: E{e * e'}
 P_11 = 1e-8*I3;
@@ -145,7 +141,7 @@ constants.P = [ P_11 zer  zer  zer  zer;        % [rad]
                 zer  P_22 zer  zer  zer;        % [m/s]
                 zer  zer  P_33 zer  zer;        % [m]
                 zer  zer  zer  P_44 zer;        % [m/s^2]
-                zer  zer  zer  zer  P_55; ];    % [rad/s]
+                zer  zer  zer  zer  P_55; ];    
 
 
 disp(constants)
