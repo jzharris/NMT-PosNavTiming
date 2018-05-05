@@ -43,11 +43,10 @@ G_11 = -C_e__b_meas;
 G_22 = -C_e__b_meas;
 G_44 = I3;
 G_55 = I3;
-                                        % Units:
-G = [   G_11 zer  zer  zer  zer;        % [rad]
-        zer  G_22 zer  zer  zer;        % [m/s]
-        zer  zer  zer  zer  zer;        % [m]
-        zer  zer  zer  G_44 zer;        % [m/s^2]
-        zer  zer  zer  zer  G_55;	];  % [rad/s]
+G = [   G_11 zer  zer  zer  zer;        % [DCM
+        zer  G_22 zer  zer  zer;
+        zer  zer  zer  zer  zer;
+        zer  zer  zer  G_44 zer;
+        zer  zer  zer  zer  G_55;	];
 
 end
