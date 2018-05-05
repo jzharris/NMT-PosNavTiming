@@ -258,8 +258,6 @@ for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-)
     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
      w_b__i_b(:,i), f_b__i_b(:,i), 'High'); % Error free IMU
-    % For tests:
-    C_e__b_INS(:,:,i) = C_e__b(:,:,i);
 end
 
 % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
@@ -279,8 +277,6 @@ b_a = zeros(3,N);
 for i=1:N
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     [w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), b_g(:,i), b_a(:,i)] = IMU(constants, w_b__i_b(:,i), f_b__i_b(:,i));
-%     w_b__i_b_tilde(:,i) = w_b__i_b(:,i);
-%     f_b__i_b_tilde(:,i) = f_b__i_b(:,i);
 end
 
 plot_IMU(constants, w_b__i_b, f_b__i_b, w_b__i_b_tilde, f_b__i_b_tilde)
@@ -301,8 +297,6 @@ for i=2:N  % Call the mechanization at each iteration: PVA(+) = ECEF_mech(PVA(-)
     [r_e__e_b_INS(:,i)  , v_e__e_b_INS(:,i)  , C_e__b_INS(:,:,i)] = ECEF_mech(constants, ...
      r_e__e_b_INS(:,i-1), v_e__e_b_INS(:,i-1), C_e__b_INS(:,:,i-1), ...
      w_b__i_b_tilde(:,i), f_b__i_b_tilde(:,i), 'High');
-    % For tests:
-    C_e__b_INS(:,:,i) = C_e__b(:,:,i);
 end
 
 % Plot the ECEF PVA Ground truth, INS derived PVA, & Error betw the two
@@ -328,10 +322,10 @@ end
 
 % Adding droupout of GPS
 % for i=30*constants.Fs:step:60*constants.Fs
-%     r_e__e_b_GPS(:,i) = r_e__e_b_GPS(:,i) + 10*randn(3,1);
-%     v_e__e_b_GPS(:,i) = r_e__e_b_GPS(:,i) + 10*randn(3,1);
+%     r_e__e_b_GPS(:,i) = r_e__e_b_GPS(:,i) + sqrt(constants.gps.position_sigma*Fs) * randn(3,1);
+%     v_e__e_b_GPS(:,i) = r_e__e_b_GPS(:,i) + sqrt(constants.gps.position_sigma*Fs) * randn(3,1);
 % end
-%plot_GPS(constants, r_e__e_b, r_e__e_b_GPS);
+% plot_GPS(constants, r_e__e_b, r_e__e_b_GPS);
 
 x_kf_est = zeros(15,1);   % Kalman filter error estimates
 P = constants.P;% Initial P matrix
@@ -358,7 +352,7 @@ for i=2:N
          r_e__e_b_INS(:,i), v_e__e_b_INS(:,i), C_e__b_INS(:,:,i));
     end
  
-    C_e__b_INS(:,:,i) = C_e__b(:,:,i);
+%     C_e__b_INS(:,:,i) = C_e__b(:,:,i);
     
     if any([r_e__e_b_GPS(:,i); v_e__e_b_GPS(:,i)], 2)
         % Find F and G: matrix after state augmentation

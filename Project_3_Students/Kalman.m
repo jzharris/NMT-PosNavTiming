@@ -14,7 +14,7 @@ x_kf_est = x_kf_est + K * (z - H * x_kf_est);
 P = (I - K * H) * P * (I - K * H).' + K * R * K.';
 
 % Project ahead
-x_kf_est = Phi * x_kf_est
+x_kf_est = Phi * x_kf_est;
 P = Q + (Phi * P * Phi.');
 
 end
