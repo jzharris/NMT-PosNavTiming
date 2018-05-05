@@ -48,6 +48,6 @@ G = [   G_11 zer  zer  zer  zer;        % [rad]
         zer  G_22 zer  zer  zer;        % [m/s]
         zer  zer  zer  zer  zer;        % [m]
         zer  zer  zer  G_44 zer;        % [m/s^2]
-        zer  zer  zer  zer  G_55;	];  % [rad/s]
+        zer  zer  zer  zer  G_55;   ];  % [rad/s]
 
 end
